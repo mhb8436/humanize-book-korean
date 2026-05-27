@@ -5,7 +5,26 @@
 ## [Unreleased]
 
 ### Planned
-- v0.3.0: `metrics_v2.py`에 신규 측정 함수 3개 (`count_emphatic_numerals`, `count_align_verbs`, `count_abstract_subj_with_control_verb`) + `baseline_v2.json` 보정값
+- v0.4.0: `metrics_v2.py`에 신규 측정 함수 3개 (`count_emphatic_numerals`, `count_align_verbs`, `count_abstract_subj_with_control_verb`) + `baseline_v2.json` 보정값
+
+## [0.3.0] — 2026-05-27 (ch03 점검 누적)
+
+### Added — X 카테고리 3개 확장
+
+- **X-11** "결승점 / 마침점 / 종착점" 비유 명사 — 영어 "the finish line of this chapter" 직역. 본 책 전체에서 10건 발견 (ch03 3건, ch06 2건, ch07 1건, ch16 4건).
+- **X-12** "의도된 단순화 / 의도된 간소화" — X-1 "is a design" 변형. 정규식 `의도된\s*(설계|단순화|간소화|복잡화|구조)`.
+- **X-13** "X의 본질입니다 / 본질적으로" — D-3 변형. 정규식 `의 본질(이다|입니다)` 추가.
+
+### Added — ch03 사례
+
+- `examples/spring-ai-book/playbook-ch03.md` 신설
+  - 변경 단락 38개 / 변경률 15~18% / 등급 A-
+  - 대표 사례 5건 (X-6+X-8·R-7·P-1·Q-1·X-1+R-7)
+  - 신규 패턴 X-11·X-12·X-13 발견
+
+### Fixed
+- ch02 점검 후 추가된 X 카테고리(v0.2.0)가 ch03에서 효과 검증: X-1·X-5·X-6·X-7·X-8·X-10·R-7·Q-1·P-1·V-6 모두 자동 탐지 성공
+- ch03 ~다 잔류 0건 (I-4 카테고리로 25+건 일괄 처리)
 
 ## [0.2.0] — 2026-05-27
 
