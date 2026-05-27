@@ -4,6 +4,40 @@
 
 ## [Unreleased]
 
+### Planned
+- v0.3.0: `metrics_v2.py`에 신규 측정 함수 3개 (`count_emphatic_numerals`, `count_align_verbs`, `count_abstract_subj_with_control_verb`) + `baseline_v2.json` 보정값
+
+## [0.2.0] — 2026-05-27
+
+### Added — Spring AI 책 ch02 점검 결과 누적
+
+- **X 카테고리 신설** (영어 구문 직역) 10개 ID
+  - X-1: "묶는 것은 의도한 설계입니다" (is a design / by design)
+  - X-2: "두 가지 이유는 ~ 입니다" 매 절 도입부 (미국 IT 책 "There are two reasons" 직역)
+  - X-3: "일관 사용 / 일관 유지" (consistently uses)
+  - X-4: "본문에서 흐름을 빠르게 잡고 싶다면" (for quick understanding)
+  - X-5: "한 번 풀어쓰고 가는 편이 안전합니다" (for safety / once you ~)
+  - X-6: 강조성 숫자 "한 줄도 / 한 줄이 / 두 줄이" (not a single line / this one line is key) — 가장 강한 신호 (ch02 10+회)
+  - X-7: "어떻게 X 어떻게 Y / 어디인지 알면 어디에 ~" 반복 의문 구조
+  - X-8: 무생물 주어 + 단정 동사 "X가 통제합니다 / 차단합니다 / 전환됩니다"
+  - X-9: "활성화되도록 통제합니다" (피동 + 통제 동사 결합, A-9 잔류 보강)
+  - X-10: "한 번 ~해 두면" (once you've grasped, P-5 잔류 보강)
+
+- **R 카테고리 확장**
+  - R-4: 정규식 강화 (`정렬(됩니다|된\s*채|되어|한다|합니다)` — ch02 6건 검출)
+  - R-7 신규: "이 한 줄이 통제합니다 / 원천 차단합니다" (controls / blocks 직역, 무생물 주어 + 단정 동사)
+
+- **Y 카테고리 신설** (기존 정규식 강화)
+  - A-15, A-9, A-10, H-3, I-3, R-4, S-4 정규식 보강안 명시
+
+- **examples/spring-ai-book/playbook-ch02.md 신설**
+  - ch02 점검 통계 (134개 단락 / 17,242자 / 잔류 약 50건)
+  - 대표 사례 8건 Before/After (X-1·X-2·X-3·X-5·X-6·X-7·R-4·R-7)
+
+### Fixed
+- ch02 본문 line 117·163·1037 등 R-4(정렬) 잔류가 1차 윤문에서 미검출되던 문제 식별 (v0.3.0에서 detection 강화 예정)
+- 사용자 자바책 reference 4편(1·5·6·11장) 기반 톤 매치 검증 통과
+
 ## [0.1.0] — 2026-05-27
 
 ### 초기 릴리스
