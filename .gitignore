@@ -1,0 +1,27 @@
+# humanize-book-korean .gitignore
+
+# 스킬 실행 시 생성되는 작업 폴더
+_workspace/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 임시 파일
+*.tmp
+*.bak
+*~
