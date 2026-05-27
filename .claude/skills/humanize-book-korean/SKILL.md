@@ -1,6 +1,6 @@
 ---
 name: humanize-book-korean
-version: "0.7.0"
+version: "0.8.0"
 description: AI(ChatGPT·Claude·Gemini 등)가 쓴 한글 IT 책 원고를 자연스러운 한국 IT 책 톤으로 윤문하는 스킬. im-not-ai(humanize-korean) v2.0 자산을 base로 한국 IT 책 특유의 영어식 패턴(자기 마케팅·학습 목표 마무리·객체에 책임 부여·당연한 사실 강조·도메인 용어 부정확)을 카테고리 P~W로 보강했다. 트리거 — "이 챕터 윤문", "IT 책 톤으로", "한국 IT 책처럼", "사용자 자바책 톤으로", "AI 티 없애고 한국 IT 책 톤으로", "humanize book korean". 후속 작업 — "이 절만 다시", "도메인 용어 점검", "학습 목표 절 재작성" 도 모두 이 스킬. 일반 한국어 텍스트 윤문은 humanize-korean 스킬, 단순 맞춤법은 직접 처리.
 ---
 
