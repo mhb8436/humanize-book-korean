@@ -8,6 +8,41 @@
 - v1.0.0: `metrics_v2.py`에 신규 측정 함수 3개 (`count_emphatic_numerals`, `count_align_verbs`, `count_abstract_subj_with_control_verb`) + `baseline_v2.json` 보정값
 - v1.0.0: 표준국어대사전 OpenAPI 연동 (도메인 용어 자동 검증)
 
+## [0.10.0] — 2026-05-27 (에이전트 컨텍스트 누락 fix — 핵심 결함 수정)
+
+### Fixed — 에이전트가 도메인 글로서리·book-extra-rules를 안 읽던 버그
+
+**증상**: SKILL.md `Phase 0`에는 "필수 참조 자료 5건"(quick-rules·book-extra-rules·user-style-traits·domain-glossary·persona)이 명시되어 있지만, 실제 `humanize-monolith` 에이전트는 `quick_rules_path` 한 개만 입력으로 받아 그것만 Read했다. 결과적으로 한국 IT 책 특화 패턴(P~Z 카테고리·X-1~X-28)과 도메인 표준 어휘(시민→민원인, 민원관→민원 공무원)가 자동으로 적용되지 않았다.
+
+사용자 코멘트: "스킬에 분명히 먹였는데 말을 안듣는 이유가 뭘까?" — 정확한 진단. SKILL.md의 문구는 사람용 문서, 에이전트는 입력 인자로 받은 파일만 Read하는 구조였다.
+
+### Changed — humanize-monolith.md (에이전트 정의)
+
+- **입력 인자 확장**:
+  - 기존: `input_path`, `quick_rules_path`, `genre_hint` (3개)
+  - 신규: `book_extra_rules_path`, `user_style_traits_path`, `domain_glossary_path`(선택), `persona_path`(선택) 추가 (총 7개)
+- **단계 1 컨텍스트 로드 확장**: Read 횟수 2회 → 3~5회. quick-rules.md 하나가 아니라 book-extra-rules·user-style-traits·domain-glossary·persona를 모두 Read.
+- **단계 2 탐지 확장**: 도메인 어휘 탐지를 **최우선**으로 추가. P~Z 카테고리 탐지 명시.
+- **단계 3 윤문 순서 변경**: **0순위로 도메인 어휘 치환** 추가 (domain-glossary 매핑 일괄 적용). 일반 명사 의미(일반 시민·조례 본문 등) 보존 규칙 명시.
+- **단계 4 자체검증 강화**: domain-glossary의 비표준 용어 0건 검증·페르소나 정보 보존 검증 추가.
+- **총 도구 호출**: 3회 → 5~8회 (Read만 늘고 Write는 그대로 1회)
+
+### Changed — SKILL.md
+
+- Phase 2 monolith 호출부에 4개 추가 경로(book_extra_rules·user_style_traits·domain_glossary·persona) 전달 명시.
+- "domain은 cwd의 book-context.yaml에서 결정. 없으면 사용자 인자 또는 cwd 기준 가장 가까운 glossary 자동 탐색" 명시.
+- "book_extra_rules_path와 domain_glossary_path를 빠뜨리면 P~Z 카테고리·도메인 어휘 치환이 적용되지 않는다" 경고 추가.
+
+### Impact
+
+v0.10.0 이후 humanize를 호출하면:
+1. book-extra-rules의 X-1~X-28 한국 IT 책 패턴이 자동 탐지·치환됨
+2. domain-glossary의 도메인 표준 어휘가 일반 패턴 처리보다 **우선적으로** 적용됨
+3. persona.md의 페르소나 정보가 자체검증 단계에서 보존 확인됨
+4. v0.9 이전 윤문 결과에서 잔류했던 "시민(페르소나 의미)"·"민원관"·"표면"·"본질" 등이 자동으로 잡힘
+
+이전까지는 사용자가 매번 수동으로 패턴 발견 → CLAUDE.md/check_korean_tone.py에 등록 → 다음 챕터에 적용하는 사이클이 필요했다. v0.10.0부터는 humanize 한 콜에서 끝난다.
+
 ## [0.9.0] — 2026-05-27 (책 전체 어휘 정비)
 
 ### Changed — 도메인 페르소나 어휘 표준화

@@ -11,10 +11,15 @@ model: opus
 ## 동작 원칙 (단일 호출 안에서)
 
 1. **입력 1회 Read**: `_workspace/{run_id}/01_input.txt` (또는 `01_input_with_metrics.txt` — v1.6 input-shim 결합 입력)
-2. **룰북 1회 Read**: `references/quick-rules.md` (~130줄, S1·S2 핵심만)
+2. **룰북 다회 Read** (도구 호출 2~5회):
+   - 필수: `references/quick-rules.md` (A~J 카테고리, ~130줄)
+   - 필수: `references/book-extra-rules.md` (P~Z 카테고리, X-1~X-28 한국 IT 책 특화 패턴)
+   - 권장: `references/user-style-traits.md` (한국 IT 책 톤 8가지 특징)
+   - 도메인 사례 있을 때: `examples/{domain}/domain-glossary.md` + `examples/{domain}/persona.md`
 3. **메모리 안에서**: 패턴 스캔 → 윤문 → 자체검증 → 등급 채점
+   - 도메인 어휘 치환 (domain-glossary.md 매핑 표 기준) → 일반 패턴 윤문 (quick-rules·book-extra-rules) → 자체검증
 4. **출력 1회 Write**: `final.md` (본문 + `<!-- HUMANIZE-SUMMARY -->` 주석 블록 통합)
-5. **총 도구 호출 3회**. 그 이상 늘어나면 v1.4와 다를 게 없다.
+5. **총 도구 호출 5~8회**. 룰북 Read가 늘었지만 본문 Write는 여전히 1회.
 
 본 에이전트는 다른 에이전트를 호출하지 않는다. 풀 파일 적재 없음. voice profile 없음. 재윤문 루프는 자체 한 번만 (자체검증 위반 시).
 
@@ -31,8 +36,14 @@ model: opus
 
 ### 입력
 - `input_path`: `_workspace/{run_id}/01_input.txt` (절대 경로)
-- `quick_rules_path`: `.../skills/humanize-korean/references/quick-rules.md` (절대 경로)
+- `quick_rules_path`: `.../skills/humanize-book-korean/references/quick-rules.md` (절대 경로, A~J 카테고리)
+- `book_extra_rules_path`: `.../skills/humanize-book-korean/references/book-extra-rules.md` (절대 경로, P~Z 카테고리·X-1~X-28)
+- `user_style_traits_path`: `.../skills/humanize-book-korean/references/user-style-traits.md` (절대 경로, 한국 IT 책 톤 8가지 특징)
+- `domain_glossary_path`: `.../skills/humanize-book-korean/examples/{domain}/domain-glossary.md` (선택, 도메인 표준 용어)
+- `persona_path`: `.../skills/humanize-book-korean/examples/{domain}/persona.md` (선택, 페르소나 보존 규칙)
 - `genre_hint`: 칼럼 | 리포트 | 블로그 | 공적 | null (null이면 첫 300자로 자체 추정)
+
+`domain_glossary_path`·`persona_path`는 도메인 사례(`examples/{domain}/`)가 있을 때만 전달된다. 두 파일이 전달되면 **반드시 Read**하여 본문에 나타나는 도메인 어휘·페르소나 표현을 표준안에 맞게 치환·보존한다. 도메인 용어 치환은 quick-rules·book-extra-rules의 일반 패턴 처리보다 **우선순위가 높다**.
 
 ### 출력
 - `_workspace/{run_id}/final.md` — 윤문본(마크다운). 본문 끝에 `<!-- HUMANIZE-SUMMARY ... -->` HTML 주석 블록 1개를 포함하며 다음 메타를 담는다:
@@ -46,25 +57,33 @@ model: opus
 
 ## 작업 순서 (한 호출 안에서)
 
-### 단계 1: 컨텍스트 로드 (도구 호출 2회)
+### 단계 1: 컨텍스트 로드 (도구 호출 3~5회)
 - Read `01_input.txt` → 원문 변수에 보관, 글자수·문장수·문단수 계산
-- Read `quick-rules.md` → 룰 표 내재화
+- Read `quick-rules.md` → A~J 룰 표 내재화
+- Read `book-extra-rules.md` → P~Z 룰 표·X-1~X-28 한국 IT 책 특화 패턴 내재화
+- (있을 때) Read `domain-glossary.md` → 도메인 표준 어휘 치환 표 내재화 (예: 시민→민원인, 민원관→민원 공무원)
+- (있을 때) Read `persona.md` → 페르소나 이름·소속·경력 보존 규칙 내재화
 
 ### 단계 2: 1차 패턴 탐지 (도구 호출 0회 — 메모리)
+- **도메인 어휘 탐지** (domain-glossary 매핑 표 기준): 비표준 용어 위치 모두 식별. **본 단계가 가장 먼저**.
 - A·D·H·I·J 카테고리: 어휘·어미 키워드 매칭
+- P·Q·R·S·T·U·V·W·X·Y·Z 카테고리 (book-extra-rules): 한국 IT 책 특화 패턴 (자기 마케팅·학습 목표 마무리·객체에 책임 부여·당연한 사실 강조·도메인 용어 부정확·책 마무리 멘트·X-1~X-28)
 - C 카테고리: 문서 구조(헤딩·따옴표·불릿) 통계
 - E 카테고리: 문장 길이 stdev
 - 각 매치를 (ID, span, severity, suggested_fix) 튜플로 메모리 보관
-- Do-NOT list 엄격 적용: 고유명사·수치·인용 span 제외
+- Do-NOT list 엄격 적용: 고유명사·수치·인용·법률 조문(조례 본문 등)·persona.md의 페르소나 정보 span 제외
 
 ### 단계 3: 윤문 (도구 호출 0회 — 메모리)
-- D 카테고리(관용구 삭제) 먼저 — 문장이 짧아져 후속 작업 쉬워짐
-- A → I → G → H → F → B → C·J → E 순서
+- **0순위: 도메인 어휘 치환**. domain-glossary.md의 매핑을 본문에 일괄 적용. 단, 도메인 어휘의 일반 명사 의미(예: "일반 시민", "시민의 권리", 조례 본문의 "○○시민의 자전거")는 보존.
+- D 카테고리(관용구 삭제) 다음 — 문장이 짧아져 후속 작업 쉬워짐
+- A → P·Q·R·S·T·U·V·W·X·Y·Z (book-extra-rules) → I → G → H → F → B → C·J → E 순서
 - 문단 단위로 처리. 각 edit의 before/after를 메모리에 누적
 - 변경률 모니터링: 50% 임박 시 후속 edit 보류
 
 ### 단계 4: 자체검증 (도구 호출 0회 — 메모리)
 - quick-rules.md "자체검증 체크리스트" 6항 점검
+- **도메인 어휘 검증**: domain-glossary.md의 비표준 용어(예: "민원관", 페르소나 의미 "시민")가 본문에 0건이어야 함. 1건이라도 잔류하면 윤문 실패로 간주.
+- **페르소나 보존 검증**: persona.md의 이름·소속·경력이 원문과 동일해야 함.
 - 위반 항목 발견 시 해당 edit 롤백 → 단계 3 부분 재실행 (최대 1회)
 - 변경률·잔존 S1·register 이탈 등 정량 측정 가능한 항목은 직접 계산
 

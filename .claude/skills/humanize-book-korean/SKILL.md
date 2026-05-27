@@ -1,6 +1,6 @@
 ---
 name: humanize-book-korean
-version: "0.9.0"
+version: "0.10.0"
 description: AI(ChatGPT·Claude·Gemini 등)가 쓴 한글 IT 책 원고를 자연스러운 한국 IT 책 톤으로 윤문하는 스킬. im-not-ai(humanize-korean) v2.0 자산을 base로 한국 IT 책 특유의 영어식 패턴(자기 마케팅·학습 목표 마무리·객체에 책임 부여·당연한 사실 강조·도메인 용어 부정확)을 카테고리 P~W로 보강했다. 트리거 — "이 챕터 윤문", "IT 책 톤으로", "한국 IT 책처럼", "사용자 자바책 톤으로", "AI 티 없애고 한국 IT 책 톤으로", "humanize book korean". 후속 작업 — "이 절만 다시", "도메인 용어 점검", "학습 목표 절 재작성" 도 모두 이 스킬. 일반 한국어 텍스트 윤문은 humanize-korean 스킬, 단순 맞춤법은 직접 처리.
 ---
 
@@ -66,12 +66,23 @@ humanize-book-korean v0.1 — {fast|strict} 모드 / run_id: {YYYY-MM-DD-NNN}
 ### Phase 2: Monolith 호출
 `humanize-monolith` 에이전트를 `Agent` 도구로 1회 호출.
 
-입력:
+입력 (필수 + 선택):
 ```
 input_path: <abs path>/_workspace/{run_id}/01_input.txt
-quick_rules_path: <abs path>/.claude/skills/humanize-korean/references/quick-rules.md
+quick_rules_path: <abs path>/.claude/skills/humanize-book-korean/references/quick-rules.md
+book_extra_rules_path: <abs path>/.claude/skills/humanize-book-korean/references/book-extra-rules.md
+user_style_traits_path: <abs path>/.claude/skills/humanize-book-korean/references/user-style-traits.md
+
+# 선택 (도메인 사례 있을 때만)
+domain_glossary_path: <abs path>/.claude/skills/humanize-book-korean/examples/{domain}/domain-glossary.md
+persona_path: <abs path>/.claude/skills/humanize-book-korean/examples/{domain}/persona.md
+
 genre_hint: 칼럼 | 리포트 | 블로그 | 공적 | null
 ```
+
+`{domain}`은 cwd의 `_workspace/{run_id}/book-context.yaml`에서 결정. 없으면 사용자 인자 또는 cwd 기준 가장 가까운 domain glossary를 자동 탐색.
+
+**중요**: book_extra_rules_path와 domain_glossary_path를 빠뜨리면 한국 IT 책 특화 패턴(P~Z 카테고리)·도메인 어휘 치환이 적용되지 않는다. SKILL.md의 "필수 참조 자료" 5건이 실제 에이전트에 전달되어야 의미가 있다.
 
 출력 (에이전트가 직접 작성):
 - `_workspace/{run_id}/final.md` — 윤문본
