@@ -13,8 +13,9 @@
 ## 새 도메인 추가 방법
 
 ```bash
-mkdir -p examples/{your-book}/reference-style
-cd examples/{your-book}
+# 도메인 자산은 스킬 폴더 안 examples/ 에 둡니다 (저장소 루트 기준 경로).
+mkdir -p .claude/skills/humanize-book-korean/examples/{your-book}/reference-style
+cd .claude/skills/humanize-book-korean/examples/{your-book}
 ```
 
 다음 파일을 작성합니다:

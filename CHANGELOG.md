@@ -8,6 +8,26 @@
 - v1.0.0: `metrics_v2.py`에 신규 측정 함수 3개 (`count_emphatic_numerals`, `count_align_verbs`, `count_abstract_subj_with_control_verb`) + `baseline_v2.json` 보정값
 - v1.0.0: 표준국어대사전 OpenAPI 연동 (도메인 용어 자동 검증)
 
+## [0.12.0] — 2026-05-30 (크로스플랫폼 설치 + examples 스킬 폴더 이동)
+
+Phase 1 — Claude Code를 터미널·Claude Desktop 양쪽에서, macOS/Linux/Windows 사용자가 모두 쓸 수 있게 설치 경로를 정비. (Phase 2 플러그인화는 후속)
+
+### Changed — `examples/`를 스킬 폴더 안으로 이동 (도메인 경로 버그 fix)
+
+- `examples/` → `.claude/skills/humanize-book-korean/examples/`로 이동 (`git mv`, 13개 파일).
+- **버그 수정**: `SKILL.md`(L77)·`humanize-monolith.md`(L42-43)는 이미 `.../skills/humanize-book-korean/examples/{domain}/` 경로를 가정했으나, 실제 파일이 저장소 루트에 있어 `--domain` 도메인 자산(도메인 용어집·페르소나)이 로드되지 않을 수 있었음. 파일을 가정 위치로 옮겨 해소.
+- 부수 효과: install이 스킬 폴더를 통째로 링크/복사하므로 도메인 자산이 자동으로 함께 설치됨. 향후 Claude Code 플러그인 패키징(자기 디렉토리 밖 참조 불가)과도 호환.
+
+### Added — 크로스플랫폼 설치 (Windows / Linux / macOS)
+
+- `scripts/install.sh`: `--global` 모드 추가 — `~/.claude` 사용자 레벨 설치로 **터미널·Claude Desktop의 Claude Code·모든 책 프로젝트에서 자동 인식**. `--link`/`--copy` 공통 처리(`link_or_copy`)로 정리.
+- `scripts/install.ps1` 신설 — 윈도우 네이티브용(WSL 불필요). 기본 `-Copy`(권한 안전), `-Link` 옵션(심볼릭 링크; 개발자 모드/관리자 권한 필요), `-Global` 지원.
+
+### Docs
+
+- `README.md`·`CLAUDE.md`·`examples/README.md`: examples 경로·설치 안내(글로벌·윈도우) 갱신.
+- `CLAUDE.md`를 `/init` 기준으로 재작성 — 자주 쓰는 명령·아키텍처 큰 그림·불변 규칙·크로스플랫폼 설치를 future-Claude 관점으로 정리.
+
 ## [0.11.0] — 2026-05-27 (ch03 round 3 — 자기 평가·명사화·"묶이는" 3종 신규 카테고리)
 
 ### Added — X-29 / X-30 / X-31 신규 카테고리
